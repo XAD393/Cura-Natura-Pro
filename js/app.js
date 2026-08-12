@@ -896,8 +896,8 @@ class App {
     const proBadgeHeader = document.getElementById('header-pro-status');
     if (proBadgeHeader) {
       proBadgeHeader.innerHTML = isPro
-        ? `<span class="badge-tag" style="background: var(--gold-gradient); color: #122B22; padding: 0.35rem 0.8rem;">👑 PRO ATTIVO</span>`
-        : `<button class="btn btn-gold btn-sm open-paywall-trigger">✨ Sblocca PRO</button>`;
+        ? `<span class="badge-tag" style="background: var(--gold-gradient); color: #122B22; padding: 0.35rem 0.65rem; font-size: 0.75rem; font-weight: 800;">👑 PRO</span>`
+        : `<button class="btn btn-gold btn-sm open-paywall-trigger"><span class="pro-text-full">✨ Sblocca PRO</span><span class="pro-text-mobile">✨ PRO</span></button>`;
       
       const newTrigger = proBadgeHeader.querySelector('.open-paywall-trigger');
       if (newTrigger) {
