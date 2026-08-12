@@ -14,11 +14,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/repertory.css">
-  <link rel="stylesheet" href="css/print.css">
+  <!-- Application Stylesheets with Cache Busting -->
+  <link rel="stylesheet" href="css/main.css?v=2.5.0">
+  <link rel="stylesheet" href="css/components.css?v=2.5.0">
+  <link rel="stylesheet" href="css/repertory.css?v=2.5.0">
+  <link rel="stylesheet" href="css/print.css?v=2.5.0">
+
+  <!-- Critical Inline Layout Rules for Absolute Brand Display -->
+  <style>
+    .brand-wrapper { flex-shrink: 0 !important; white-space: nowrap !important; min-width: max-content !important; display: flex !important; align-items: center !important; }
+    .brand-text { white-space: nowrap !important; flex-shrink: 0 !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
+    .brand-title, .brand-text h1 { white-space: nowrap !important; display: block !important; margin: 0 !important; font-size: 1.35rem !important; line-height: 1.15 !important; }
+    .brand-subtitle, .brand-text span { white-space: nowrap !important; display: block !important; margin-top: 2px !important; font-size: 0.72rem !important; line-height: 1.15 !important; }
+  </style>
 </head>
 <body>
 
@@ -30,8 +38,8 @@
         <div class="brand-wrapper" data-tab="repertory">
           <div class="brand-icon">🌿</div>
           <div class="brand-text">
-            <h1>CURA NATURA</h1>
-            <span>Guida Olistica Pro</span>
+            <h1 class="brand-title">CURA NATURA</h1>
+            <span class="brand-subtitle">Guida Olistica Pro</span>
           </div>
         </div>
 
@@ -459,8 +467,8 @@
   <!-- Toast notification container -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- Main ES Module Application Script -->
-  <script type="module" src="js/app.js"></script>
+  <!-- Main ES Module Application Script with Cache Busting -->
+  <script type="module" src="js/app.js?v=2.5.0"></script>
 
   <!-- Service Worker registration for PWA offline capabilities -->
   <script>

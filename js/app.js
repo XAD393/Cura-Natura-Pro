@@ -529,7 +529,11 @@ class App {
 
     // Bind Symptom Clicks with targeted DOM updates (NO full accordion re-render!)
     container.querySelectorAll('.symptom-item-check').forEach(item => {
-      const toggleSymptomItem = () => {
+      const toggleSymptomItem = (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         const symId = item.dataset.symId;
         const sysParentId = item.dataset.sysParent;
         
@@ -543,12 +547,16 @@ class App {
         const box = item.querySelector('.symptom-custom-box');
         if (box) box.textContent = isChecked ? '✓' : '';
 
-        // 3. Update parent badge counter directly without touching open/closed state
-        const sysObj = SYMPTOM_SYSTEMS.find(s => s.id === sysParentId);
-        if (sysObj) {
-          const count = sysObj.symptoms.filter(s => this.repertoryEngine.selectedSymptoms.has(s.id)).length;
-          const parentCard = item.closest('.system-card');
-          if (parentCard) {
+        // 3. Keep parent card strictly open and update badge counter
+        const parentCard = item.closest('.system-card');
+        if (parentCard) {
+          parentCard.classList.add('open');
+          const header = parentCard.querySelector('.system-card-header');
+          if (header) header.setAttribute('aria-expanded', 'true');
+
+          const sysObj = SYMPTOM_SYSTEMS.find(s => s.id === sysParentId);
+          if (sysObj) {
+            const count = sysObj.symptoms.filter(s => this.repertoryEngine.selectedSymptoms.has(s.id)).length;
             const counter = parentCard.querySelector('.system-badge-counter');
             if (counter) {
               counter.textContent = count;
@@ -565,7 +573,7 @@ class App {
       item.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          toggleSymptomItem();
+          toggleSymptomItem(e);
         }
       });
     });

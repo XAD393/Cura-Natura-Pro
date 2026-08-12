@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 CURA NATURA Pro - Production Backend & API Server
-Handles static file serving, Stripe Checkout API sessions, license verification, and data endpoints.
+Handles static file serving with SPA routing, Stripe Checkout API sessions, license verification, and data endpoints.
 """
 
 import http.server
@@ -24,8 +24,10 @@ class CuraNaturaHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
+        
+        # API Routes
         if parsed.path == '/api/health':
-            self.send_json_response({"status": "ok", "app": "CURA NATURA Pro", "version": "2.0.0"})
+            self.send_json_response({"status": "ok", "app": "CURA NATURA Pro", "version": "2.1.0"})
             return
         elif parsed.path == '/api/config':
             self.send_json_response({
@@ -34,8 +36,30 @@ class CuraNaturaHandler(http.server.SimpleHTTPRequestHandler):
                 "price": 19.90
             })
             return
-        # Fallback to static files
+        
+        # Static files check
+        clean_path = parsed.path.lstrip('/')
+        file_path = os.path.join(DIRECTORY, clean_path)
+        
+        # If path is empty, directory, or not a static file with extension, serve index.html
+        if not clean_path or clean_path == 'index.html' or os.path.isdir(file_path):
+            self.path = '/index.html'
+            super().do_GET()
+            return
+
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            super().do_GET()
+            return
+
+        # SPA fallback to index.html for any sub-route
+        self.path = '/index.html'
         super().do_GET()
+
+    def end_headers(self):
+        # Prevent unwanted caching issues during active development
+        self.send_header('Cache-Control', 'no-cache, must-revalidate')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        super().end_headers()
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -72,8 +96,8 @@ class CuraNaturaHandler(http.server.SimpleHTTPRequestHandler):
                     "line_items[0][price_data][product_data][name]": product_name,
                     "line_items[0][quantity]": 1,
                     "mode": "payment",
-                    "success_url": "https://curanatura.pro/?success=true&session_id={CHECKOUT_SESSION_ID}",
-                    "cancel_url": "https://curanatura.pro/?canceled=true"
+                    "success_url": "https://xad393.github.io/Cura-Natura-Pro/?success=true&session_id={CHECKOUT_SESSION_ID}",
+                    "cancel_url": "https://xad393.github.io/Cura-Natura-Pro/?canceled=true"
                 }).encode('utf-8')
 
                 req = urllib.request.Request("https://api.stripe.com/v1/checkout/sessions", data=data)
@@ -83,7 +107,6 @@ class CuraNaturaHandler(http.server.SimpleHTTPRequestHandler):
                     self.send_json_response({"checkoutUrl": res_body.get("url"), "sessionId": res_body.get("id")})
                     return
             except Exception as e:
-                # Fallback on error
                 pass
 
         # Simulated instant checkout token for zero-friction demo/testing
@@ -112,7 +135,6 @@ class CuraNaturaHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(response_bytes)))
-        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         self.wfile.write(response_bytes)
 

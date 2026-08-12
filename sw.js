@@ -1,4 +1,4 @@
-const CACHE_NAME = 'curanatura-cache-v1';
+const CACHE_NAME = 'curanatura-cache-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -43,21 +43,23 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Network-First strategy: Always fetch freshest assets online, fallback to cache offline
 self.addEventListener('fetch', (event) => {
-  // Stale-while-revalidate strategy
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && event.request.method === 'GET') {
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
         }
         return networkResponse;
-      }).catch(() => cachedResponse);
-
-      return cachedResponse || fetchPromise;
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });
