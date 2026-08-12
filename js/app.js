@@ -143,7 +143,27 @@ class App {
     if (clearRepBtn) {
       clearRepBtn.addEventListener('click', () => {
         this.repertoryEngine.clearSelections();
-        this.renderRepertorySystems();
+        
+        // Reset all symptom items
+        document.querySelectorAll('.symptom-item-check').forEach(item => {
+          item.classList.remove('checked');
+          item.setAttribute('aria-checked', 'false');
+          const box = item.querySelector('.symptom-custom-box');
+          if (box) box.textContent = '';
+        });
+
+        // Reset all polarity pills
+        document.querySelectorAll('.polarity-pill').forEach(pill => {
+          pill.classList.remove('checked');
+          pill.setAttribute('aria-checked', 'false');
+        });
+
+        // Reset all counters
+        document.querySelectorAll('.system-badge-counter').forEach(counter => {
+          counter.textContent = '0';
+          counter.classList.remove('active');
+        });
+
         this.updateRepertoryResults();
         this.showToast("Repertorio azzerato");
       });
@@ -462,27 +482,25 @@ class App {
     const container = document.getElementById('repertory-systems-accordion');
     if (!container) return;
 
-    container.innerHTML = SYMPTOM_SYSTEMS.map((sys, idx) => {
-      const selectedInSystem = sys.symptoms.filter(s => this.repertoryEngine.selectedSymptoms.has(s.id)).length;
-      const isOpen = idx === 0 || selectedInSystem > 0;
+    // Render systems initial structure (all start closed by default)
+    container.innerHTML = SYMPTOM_SYSTEMS.map(sys => {
       return `
-        <div class="system-card ${isOpen ? 'open' : ''}" data-sys-id="${sys.id}">
-          <div class="system-card-header" role="button" aria-expanded="${isOpen}">
+        <div class="system-card" data-sys-id="${sys.id}">
+          <div class="system-card-header" role="button" aria-expanded="false" tabindex="0">
             <div class="system-title-group">
               <span>${sys.icon}</span>
               <span>${sys.name}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span class="system-badge-counter ${selectedInSystem > 0 ? 'active' : ''}">${selectedInSystem}</span>
+              <span class="system-badge-counter">0</span>
               <span class="system-chevron">▼</span>
             </div>
           </div>
           <div class="system-symptoms-list">
             ${sys.symptoms.map(sym => {
-              const isChecked = this.repertoryEngine.selectedSymptoms.has(sym.id);
               return `
-                <div class="symptom-item-check ${isChecked ? 'checked' : ''}" data-sym-id="${sym.id}" role="checkbox" aria-checked="${isChecked}">
-                  <div class="symptom-custom-box">${isChecked ? '✓' : ''}</div>
+                <div class="symptom-item-check" data-sym-id="${sym.id}" data-sys-parent="${sys.id}" role="checkbox" aria-checked="false" tabindex="0">
+                  <div class="symptom-custom-box"></div>
                   <span>${sym.label}</span>
                 </div>
               `;
@@ -492,22 +510,63 @@ class App {
       `;
     }).join('');
 
-    // Bind Accordion Toggles
+    // Bind Accordion Header Toggles
     container.querySelectorAll('.system-card-header').forEach(header => {
-      header.addEventListener('click', (e) => {
-        const card = e.currentTarget.closest('.system-card');
+      const toggleAccordion = () => {
+        const card = header.closest('.system-card');
         const isOpen = card.classList.toggle('open');
-        header.setAttribute('aria-expanded', isOpen);
+        header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      };
+
+      header.addEventListener('click', toggleAccordion);
+      header.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleAccordion();
+        }
       });
     });
 
-    // Bind Symptom Clicks
+    // Bind Symptom Clicks with targeted DOM updates (NO full accordion re-render!)
     container.querySelectorAll('.symptom-item-check').forEach(item => {
-      item.addEventListener('click', (e) => {
-        const symId = e.currentTarget.dataset.symId;
+      const toggleSymptomItem = () => {
+        const symId = item.dataset.symId;
+        const sysParentId = item.dataset.sysParent;
+        
+        // 1. Update engine state
         this.repertoryEngine.toggleSymptom(symId);
-        this.renderRepertorySystems();
+        const isChecked = this.repertoryEngine.selectedSymptoms.has(symId);
+
+        // 2. Update item UI directly
+        item.classList.toggle('checked', isChecked);
+        item.setAttribute('aria-checked', isChecked ? 'true' : 'false');
+        const box = item.querySelector('.symptom-custom-box');
+        if (box) box.textContent = isChecked ? '✓' : '';
+
+        // 3. Update parent badge counter directly without touching open/closed state
+        const sysObj = SYMPTOM_SYSTEMS.find(s => s.id === sysParentId);
+        if (sysObj) {
+          const count = sysObj.symptoms.filter(s => this.repertoryEngine.selectedSymptoms.has(s.id)).length;
+          const parentCard = item.closest('.system-card');
+          if (parentCard) {
+            const counter = parentCard.querySelector('.system-badge-counter');
+            if (counter) {
+              counter.textContent = count;
+              counter.classList.toggle('active', count > 0);
+            }
+          }
+        }
+
+        // 4. Recalculate results
         this.updateRepertoryResults();
+      };
+
+      item.addEventListener('click', toggleSymptomItem);
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleSymptomItem();
+        }
       });
     });
 
@@ -526,7 +585,7 @@ class App {
           ${group.options.map(opt => {
             const isChecked = this.repertoryEngine.selectedModalities.has(opt.id);
             return `
-              <div class="polarity-pill ${isChecked ? 'checked' : ''}" data-mod-id="${opt.id}">
+              <div class="polarity-pill ${isChecked ? 'checked' : ''}" data-mod-id="${opt.id}" role="checkbox" aria-checked="${isChecked}" tabindex="0">
                 ${opt.label}
               </div>
             `;
@@ -536,11 +595,21 @@ class App {
     `).join('');
 
     container.querySelectorAll('.polarity-pill').forEach(pill => {
-      pill.addEventListener('click', (e) => {
-        const modId = e.currentTarget.dataset.modId;
+      const togglePill = () => {
+        const modId = pill.dataset.modId;
         this.repertoryEngine.toggleModality(modId);
-        this.renderPolarities();
+        const isChecked = this.repertoryEngine.selectedModalities.has(modId);
+        pill.classList.toggle('checked', isChecked);
+        pill.setAttribute('aria-checked', isChecked ? 'true' : 'false');
         this.updateRepertoryResults();
+      };
+
+      pill.addEventListener('click', togglePill);
+      pill.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          togglePill();
+        }
       });
     });
   }
