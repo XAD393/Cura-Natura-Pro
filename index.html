@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>CURA NATURA Pro — Guida all'Omeopatia Olistica & Repertorio Interattivo</title>
+  <meta name="description" content="La piattaforma interattiva di medicina naturale e omeopatia olistica: repertorio clinico, calcolatore di potenze, 100+ schede rimedi con sintesi audio e kit d'emergenza stampabili per la famiglia.">
+  <meta name="keywords" content="omeopatia olistica, repertorio omeopatico, pronto soccorso omeopatia, arnica, aconitum, rimedi naturali, kit emergenza neonati, guida omeopatica">
+  <meta name="theme-color" content="#123B2D">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Application Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/repertory.css">
+  <link rel="stylesheet" href="css/print.css">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="container">
+      <div class="header-inner">
+        <!-- Brand Identity -->
+        <div class="brand-wrapper" data-tab="repertory">
+          <div class="brand-icon">🌿</div>
+          <div class="brand-text">
+            <h1>CURA NATURA</h1>
+            <span>Guida Olistica Pro</span>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation Bar -->
+        <nav class="desktop-nav" aria-label="Navigazione Principale">
+          <button class="nav-item-btn active" data-tab="repertory">
+            <span>🎯</span> Repertorio Matrice
+          </button>
+          <button class="nav-item-btn" data-tab="materia">
+            <span>📖</span> Materia Medica
+          </button>
+          <button class="nav-item-btn" data-tab="dosage">
+            <span>💊</span> Calcolatore Potenze
+          </button>
+          <button class="nav-item-btn" data-tab="kits">
+            <span>📑</span> Kit & PDF Frigo
+          </button>
+          <button class="nav-item-btn" data-tab="tracker">
+            <span>📝</span> Diario Clinico
+          </button>
+        </nav>
+
+        <!-- Header Actions: Theme & PRO Badge -->
+        <div class="header-actions">
+          <button class="btn-icon-only" id="theme-toggle-btn" title="Cambia tema chiaro/scuro" aria-label="Cambia tema chiaro/scuro">
+            🌙
+          </button>
+          <div id="header-pro-status">
+            <button class="btn btn-gold btn-sm open-paywall-trigger">
+              ✨ Sblocca PRO
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container" id="main-content">
+
+    <!-- ==========================================
+         TAB 1: REPERTORY MATRIX (Core Feature)
+         ========================================== -->
+    <section class="tab-pane active" id="tab-repertory">
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-tag">
+          <span>✨</span> Motore di Repertorizzazione Intelligente
+        </div>
+        <h2 class="hero-title">Trova il Rimedio Perfetto in 3 Clic</h2>
+        <p class="hero-desc">
+          Supera la complessità dei PDF statici. Seleziona i sintomi acuti e le modalità (caldo/freddo, movimento, orari) per calcolare istantaneamente la corrispondenza clinica con indice di confidenza.
+        </p>
+        <div class="hero-stats-row">
+          <div class="hero-stat-item">
+            <span class="hero-stat-val">100%</span>
+            <span class="hero-stat-label">Offline Ready</span>
+          </div>
+          <div class="hero-stat-item">
+            <span class="hero-stat-val">&lt; 10ms</span>
+            <span class="hero-stat-label">Calcolo Real-time</span>
+          </div>
+          <div class="hero-stat-item">
+            <span class="hero-stat-val">40+</span>
+            <span class="hero-stat-label">Rubriche Cliniche</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repertory Layout -->
+      <div class="repertory-container-layout">
+        <!-- Left: Symptoms & Polarities Selector -->
+        <div class="repertory-panel">
+          <div class="panel-section-title">
+            <span>📋</span> 1. Seleziona Sintomi & Apparati
+          </div>
+          <p class="panel-section-subtitle">
+            Espandi le sezioni sottostanti e spunta i sintomi manifestati dal paziente.
+          </p>
+
+          <div class="system-accordion-list" id="repertory-systems-accordion">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Modalities & Polarities Filter -->
+          <div class="modalities-polarity-box">
+            <div class="panel-section-title">
+              <span>⚖️</span> 2. Modalità di Polarità (Miglioramento / Peggioramento)
+            </div>
+            <p class="panel-section-subtitle">
+              Le modalità sono la 'firma' omeopatica decisiva per differenziare rimedi con sintomi simili.
+            </p>
+            <div id="repertory-polarities-box">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Real-time Ranked Results -->
+        <div class="repertory-results-sidebar">
+          <div class="repertory-panel">
+            <div class="results-header-box">
+              <div class="panel-section-title">
+                <span>🎯</span> Rimedi Corrispondenti (<span id="repertory-selected-count">0</span>)
+              </div>
+              <button class="clear-repertory-btn" id="clear-repertory-btn">
+                Azzera Selezione
+              </button>
+            </div>
+            <p class="panel-section-subtitle">
+              Ordinati per grado di affinità e motivazione clinica.
+            </p>
+
+            <div id="repertory-results-list">
+              <!-- Dynamically populated by RepertoryEngine -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 2: MATERIA MEDICA ENCYCLOPEDIA
+         ========================================== -->
+    <section class="tab-pane" id="tab-materia">
+      <div style="margin-bottom: 1.5rem;">
+        <h2 style="font-family: var(--font-serif); font-size: 2rem; color: var(--emerald-800); margin-bottom: 0.35rem;">
+          Materia Medica Completa
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          Enciclopedia clinica con schede approfondite, keynotes mentali e fisici, note pediatriche e sintesi vocale istantanea.
+        </p>
+      </div>
+
+      <!-- Search and Filters -->
+      <div class="search-box-wrapper">
+        <span class="search-prefix-icon">🔍</span>
+        <input type="text" class="search-input-field" id="materia-search-input" placeholder="Cerca per nome (es. Arnica), sintomo (es. colpo di freddo, febbre) o modalità...">
+        <button class="search-clear-btn" id="search-clear-btn" title="Cancella ricerca">✕</button>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="category-chips-scroll" id="category-chips-container">
+        <!-- Dynamically populated -->
+      </div>
+
+      <!-- Remedies Grid -->
+      <div class="remedy-grid" id="remedies-grid">
+        <!-- Dynamically populated -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 3: DOSAGE & POTENCY ENGINE
+         ========================================== -->
+    <section class="tab-pane" id="tab-dosage">
+      <div style="margin-bottom: 1.75rem;">
+        <h2 style="font-family: var(--font-serif); font-size: 2rem; color: var(--emerald-800); margin-bottom: 0.35rem;">
+          Guida alle Potenze & Somministrazione
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          Tutto quello che c'è da sapere sulle diluizioni omeopatiche, il metodo dolce delle dosi in acqua e gli antidoti da evitare.
+        </p>
+      </div>
+
+      <!-- Potency Decision Cards -->
+      <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--emerald-800); margin-bottom: 1rem;">
+        1. Quale Potenza Scegliere?
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;" id="potency-guide-grid">
+        <!-- Dynamically populated -->
+      </div>
+
+      <!-- Wet Dosing / Water Method Tutorial -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+          <span style="font-size: 1.8rem;">💧</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--emerald-800); margin: 0;">
+            2. Il Metodo delle Dosi in Acqua (Wet Dosing)
+          </h3>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem;">
+          Raccomandato per neonati, bambini piccoli, animali e persone ipersensibili. Riduce a zero il rischio di aggravamento iniziale e moltiplica l'efficacia del rimedio.
+        </p>
+
+        <div id="wet-dosing-steps-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Antidote Shield -->
+      <div>
+        <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--emerald-800); margin-bottom: 1rem;">
+          3. Lo Scudo Antidoti & Regole di Conservazione
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;" id="antidotes-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 4: KITS & PRINTABLE PDF PROTOCOLS
+         ========================================== -->
+    <section class="tab-pane" id="tab-kits">
+      <div style="margin-bottom: 1.75rem;">
+        <h2 style="font-family: var(--font-serif); font-size: 2rem; color: var(--emerald-800); margin-bottom: 0.35rem;">
+          Kit d'Emergenza & Generatore Schede PDF
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          Stampa schede di pronto soccorso ad alta risoluzione da attaccare al frigorifero, portare in vacanza o consegnare a nonni e babysitter.
+        </p>
+      </div>
+
+      <!-- Template Kits Grid -->
+      <h3 style="font-family: var(--font-serif); font-size: 1.35rem; color: var(--emerald-800); margin-bottom: 1rem;">
+        Protocolli Preconfigurati Pronti alla Stampa
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;" id="kits-template-grid">
+        <!-- Dynamically populated -->
+      </div>
+
+      <!-- Custom Kit Creator Wizard -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+          <span style="font-size: 1.8rem;">🛠️</span>
+          <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--emerald-800); margin: 0;">
+            Crea la Tua Scheda Frigorifero Personalizzata
+          </h3>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.92rem; margin-bottom: 1.5rem;">
+          Scegli i rimedi che possiedi a casa, inserisci il tuo numero del pediatra/medico d'emergenza e genera un layout PDF stampabile su misura.
+        </p>
+
+        <form id="custom-kit-form">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Nome del Kit / Famiglia</label>
+              <input type="text" id="custom-kit-name" class="search-input-field" style="padding-left: 1rem;" value="Farmacia Omeopatica Famiglia Rossi" required>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Telefono Medico / Pediatra</label>
+              <input type="tel" id="custom-kit-phone" class="search-input-field" style="padding-left: 1rem;" placeholder="Es. +39 333 1234567">
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary);">Note e Istruzioni per la Famiglia</label>
+            <textarea id="custom-kit-notes" class="search-input-field" style="padding: 0.75rem 1rem; height: 80px; resize: vertical;" placeholder="Es. Armadietto corridoio secondo ripiano, tenere lontano dal cellulare."></textarea>
+          </div>
+
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Seleziona i Rimedi da includere nella Scheda:</label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; max-height: 220px; overflow-y: auto; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); margin-bottom: 1.5rem; background: var(--bg-surface);" id="custom-kit-remedies-selector">
+            <!-- Dynamically populated -->
+          </div>
+
+          <button type="submit" class="btn btn-gold" style="width: 100%;">
+            🖨️ Genera & Stampa Scheda d'Emergenza
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 5: CLINICAL TRACKER / DIARY
+         ========================================== -->
+    <section class="tab-pane" id="tab-tracker">
+      <div style="margin-bottom: 1.75rem;">
+        <h2 style="font-family: var(--font-serif); font-size: 2rem; color: var(--emerald-800); margin-bottom: 0.35rem;">
+          Diario Clinico & Registro Somministrazioni
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          Traccia i sintomi, i rimedi somministrati e la risposta nel tempo per tutta la famiglia. I dati rimangono 100% privati e salvati localmente sul tuo dispositivo.
+        </p>
+      </div>
+
+      <div class="repertory-container-layout">
+        <!-- Add Entry Form -->
+        <div class="repertory-panel">
+          <div class="panel-section-title">
+            <span>📝</span> Registra Nuova Somministrazione
+          </div>
+          <form id="add-log-form" style="margin-top: 1rem;">
+            <div style="margin-bottom: 0.85rem;">
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Nome Persona / Animale</label>
+              <input type="text" id="log-patient" class="search-input-field" style="padding-left: 1rem;" placeholder="Es. Leonardo (bambino) o Maya (cane)" required>
+            </div>
+            <div style="margin-bottom: 0.85rem;">
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Sintomo Principale</label>
+              <input type="text" id="log-symptom" class="search-input-field" style="padding-left: 1rem;" placeholder="Es. Febbre a 38.8°C dopo vento freddo" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Rimedio Scelto</label>
+                <input type="text" id="log-remedy" class="search-input-field" style="padding-left: 1rem;" placeholder="Es. Aconitum Napellus" required>
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Potenza</label>
+                <input type="text" id="log-potency" class="search-input-field" style="padding-left: 1rem;" value="30CH" required>
+              </div>
+            </div>
+            <div style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">Note sull'Evoluzione</label>
+              <textarea id="log-notes" class="search-input-field" style="padding: 0.75rem 1rem; height: 75px; resize: vertical;" placeholder="Es. Dopo 30 minuti comparsa del sudore e sonno profondo."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              Salva nel Diario 💾
+            </button>
+          </form>
+        </div>
+
+        <!-- History Timeline -->
+        <div class="repertory-panel">
+          <div class="panel-section-title">
+            <span>📅</span> Storico Consultazioni
+          </div>
+          <p class="panel-section-subtitle">Tutti gli episodi registrati sul tuo dispositivo.</p>
+          <div id="tracker-logs-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       MODAL: REMEDY DETAIL VIEW
+       ========================================== -->
+  <div class="modal-backdrop" id="detail-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog-box">
+      <div class="modal-header-bar">
+        <span class="badge-tag">Scheda Clinica Materia Medica</span>
+        <button class="modal-close-icon" id="detail-modal-close" aria-label="Chiudi modale">✕</button>
+      </div>
+      <div class="modal-body-content" id="detail-modal-body">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: PAYWALL / STRIPE UPGRADE
+       ========================================== -->
+  <div class="modal-backdrop" id="paywall-modal" role="dialog" aria-modal="true">
+    <div class="modal-dialog-box" style="max-width: 520px; text-align: center;">
+      <div class="modal-header-bar">
+        <span class="badge-tag pro-badge">👑 Edizione PRO illimitata</span>
+        <button class="modal-close-icon" id="paywall-modal-close" aria-label="Chiudi modale">✕</button>
+      </div>
+      <div class="modal-body-content">
+        <div class="paywall-crown">🌿</div>
+        <h2 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--emerald-800); margin-bottom: 0.4rem;">
+          CURA NATURA Pro
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;" id="paywall-trigger-reason">
+          Sblocca l'accesso illimitato a vita a tutti gli strumenti professionali e schede complete.
+        </p>
+
+        <!-- Pricing Card -->
+        <div class="pricing-table-box">
+          <div style="margin-bottom: 0.5rem;">
+            <span class="price-strike">€49.00</span>
+            <span class="price-current">€19.90</span>
+            <small style="display: block; color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">Pagamento unico una tantum • Accesso a vita</small>
+          </div>
+
+          <ul class="pro-features-list">
+            <li><span class="check">✓</span> <strong>100+ Schede Materia Medica</strong> complete con audio</li>
+            <li><span class="check">✓</span> <strong>Repertorio Intelligente Multi-Sintomo</strong> senza limiti</li>
+            <li><span class="check">✓</span> <strong>Generatore PDF Schede Frigorifero</strong> personalizzate</li>
+            <li><span class="check">✓</span> <strong>Sezioni Speciali Neonati & Animali Domestici</strong></li>
+            <li><span class="check">✓</span> <strong>Funzionamento Offline al 100%</strong> senza abbonamenti</li>
+          </ul>
+
+          <button class="btn btn-gold" id="stripe-checkout-btn" style="width: 100%; font-size: 1.05rem; padding: 0.9rem;">
+            💳 Acquista Ora con Stripe (€19.90)
+          </button>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+            🔒 Pagamento sicuro crittografato SSL con Stripe Checkout. Soddisfatti o rimborsati 30 giorni.
+          </p>
+        </div>
+
+        <!-- Promo Code Section -->
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="promo-code-input" class="search-input-field" placeholder="Hai un codice promozionale o licenza?" style="padding-left: 1rem; font-size: 0.85rem;">
+            <button class="btn btn-secondary btn-sm" id="promo-code-apply-btn">Attiva</button>
+          </div>
+          <small style="display: block; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px;">
+            Codice demo test: <code>NATURA2026</code>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" aria-label="Navigazione Mobile">
+    <button class="mobile-nav-tab active" data-tab="repertory">
+      <span class="tab-icon">🎯</span>
+      <span>Repertorio</span>
+    </button>
+    <button class="mobile-nav-tab" data-tab="materia">
+      <span class="tab-icon">📖</span>
+      <span>Rimedi</span>
+    </button>
+    <button class="mobile-nav-tab" data-tab="dosage">
+      <span class="tab-icon">💊</span>
+      <span>Potenze</span>
+    </button>
+    <button class="mobile-nav-tab" data-tab="kits">
+      <span class="tab-icon">📑</span>
+      <span>Kit PDF</span>
+    </button>
+    <button class="mobile-nav-tab" data-tab="tracker">
+      <span class="tab-icon">📝</span>
+      <span>Diario</span>
+    </button>
+  </nav>
+
+  <!-- Container for high-res printable PDF sheet -->
+  <div id="print-container"></div>
+
+  <!-- Toast notification container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Main ES Module Application Script -->
+  <script type="module" src="js/app.js"></script>
+
+  <!-- Service Worker registration for PWA offline capabilities -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => {
+          console.log('SW registration note:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
